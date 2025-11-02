@@ -1,0 +1,27 @@
+# Log files
+log.txt
+
+# Database files
+*.mdb
+db.mdb
+test.mdb
+
+# Dev mode configuration
+dev_mode.yaml
+
+# Windows temporary files
+Thumbs.db
+desktop.ini
+
+# PowerShell temporary files
+*.tmp
+
+# Backup files
+*.bak
+*~
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.suo
+*.user
