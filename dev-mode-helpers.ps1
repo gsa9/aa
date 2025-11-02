@@ -244,14 +244,18 @@ function Get-WorkgroupConnectionString {
             $password = ""
         }
 
-        # Validate .mdw file exists (fail early)
+        # Check if .mdw file exists - fall back to basic connection if not found
         if (-not (Test-Path $mdwPath)) {
-            throw "Dev mode enabled but System.mdw not found: $mdwPath`n" +
-                  "File: $configPath`n" +
-                  "Fix: Update 'mdw_path' in workgroup section with valid System.mdw path"
+            Write-Warning "Dev mode enabled but System.mdw not found: $mdwPath"
+            Write-Warning "Falling back to default System.mdw (production connection string)"
+            Write-Verbose "Auto-login will still work if configured"
+
+            # Fall back to basic connection string (uses default System.mdw)
+            $connectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=$dbPath;"
+            return $connectionString
         }
 
-        # Build workgroup connection string
+        # Build workgroup connection string (custom .mdw file exists)
         $connectionString = "Provider=Microsoft.Jet.OLEDB.4.0;" +
                             "Data Source=$dbPath;" +
                             "Jet OLEDB:System Database=$mdwPath;" +

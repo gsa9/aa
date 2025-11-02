@@ -565,7 +565,8 @@ function Show-MainMenu {
     $patientsButton.Size = New-Object System.Drawing.Size(300, 40)
     $patientsButton.Text = "Manage Patients"
     $patientsButton.Add_Click({
-        [System.Windows.Forms.MessageBox]::Show("Patient management not yet implemented.", "Not Implemented", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        . (Join-Path $PSScriptRoot "gui-clinical-patients.ps1")
+        Show-PatientPanel -user $user -connection $connection
     })
     $menuForm.Controls.Add($patientsButton)
 
