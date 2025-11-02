@@ -248,7 +248,7 @@ docs/
 ```
 ---
 **Commands**: resume (continue work) | rl (read log) | ud (update docs)
-**Docs**: rsec (security) | rboot (bootstrap) | rtest (testing) | rps (powershell) | rdm (doc-maint)
+**Docs**: rsec (security) | rboot (bootstrap) | rps (powershell) | rui (ui) | rdm (doc-maint)
 ```
 
 **Purpose**: Discoverability - user knows all magic keywords and how to access them

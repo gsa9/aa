@@ -211,23 +211,12 @@ ProductionReady
 - Methods: Access UI (File > New > Blank Database), external ADOX script, or copy template
 - NO SCRIPT creates db.mdb files (policy - production database)
 - File must exist before bootstrap
-- Test database: Create test.mdb in project root for testing (dev mode only)
 
-**Database File Policies**:
+**Database File Policy**:
 - **Production (db.mdb)**: NEVER deleted by scripts, created manually only
   - Location: Parent directory (one level above project root)
   - Created manually via Access UI or ADOX script
   - NO SCRIPT creates or deletes production db.mdb (absolute rule)
-- **Test (test.mdb)**: CAN be deleted/created by test utilities, but ONLY in dev mode
-  - Location: Project root
-  - Created by test database creation utility
-  - Requires dev mode at startup (fails if not in dev mode)
-  - Automatically deletes existing test.mdb to recycle bin
-  - Uses workgroup connection for proper object ownership
-- **Dev Mode Required**: Test utilities check dev mode status at start
-- **Workgroup Security**: test.mdb created via workgroup connection (proper ownership)
-- **Rationale**: Tests must use workgroup to emulate production security model
-- **Enforcement**: Dev mode requirement + test-* naming convention
 
 **Bootstrap Phases**:
 
@@ -414,19 +403,3 @@ Feature Status:
 
 **Recovery**: KekNoAdmin state enables recovery from partial bootstrap
 
----
-
-## Cross-References
-
-**Related documentation:**
-- Security patterns and KEK management: docs/sec.md
-- Test design and dev mode: docs/testing.md
-- Documentation maintenance: docs/dm.md
-
-**Source modules:**
-- Database helpers: Connection management, state detection, CRUD operations
-- Crypto helpers: Password hashing, KEK management
-- User management: User creation, authentication
-- Schema definitions: All CREATE TABLE and CREATE INDEX statements
-
-**Implementation**: See project root for current script organization

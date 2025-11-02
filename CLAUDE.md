@@ -16,7 +16,6 @@
 - **docs/dm.md**: Documentation philosophy (MANDATORY before doc updates)
 - **docs/boot.md**: Bootstrap state machine, workflow gotchas
 - **docs/sec.md**: Security patterns, KEK principles, double PBKDF2
-- **docs/testing.md**: Test patterns, dev mode, workgroup testing
 - **docs/powershell.md**: PowerShell gotchas, critical constraints, non-obvious patterns
 - **docs/ui.md**: Windows Forms patterns, layout standards
 - **next_session.md**: Incomplete work only (delete completed items)
@@ -26,7 +25,7 @@
 
 ## Commands & Session Management
 
-**Keywords**: resume | rl | rsec | rboot | rdm | rtest | rps | rui | ud
+**Keywords**: resume | rl | rsec | rboot | rdm | rps | rui | ud
 
 | Command | Action |
 |---------|--------|
@@ -34,7 +33,6 @@
 | **rl** | Read log.txt, troubleshoot |
 | **rsec** | Read docs/sec.md (security) |
 | **rboot** | Read docs/boot.md (bootstrap) |
-| **rtest** | Read docs/testing.md (test design) |
 | **rdm** | Read docs/dm.md (doc maintenance) |
 | **rps** | Read docs/powershell.md (PowerShell patterns) |
 | **rui** | Read docs/ui.md (Windows Forms UI guidelines) |
@@ -172,27 +170,24 @@ bash rm -f test-*.ps1 cleanup-*.bat temp*.txt
 - Database connection function MUST fail if db.mdb does not exist
 - Error message must direct user to create db.mdb manually
 
-**Test Database Creation**:
-- TEST UTILITY for creating test.mdb ONLY (not production db.mdb)
-- Requires dev mode (configuration file with workgroup settings)
-- Creates test.mdb in project root with workgroup connection
-- Automatically deletes existing test.mdb (to recycle bin)
-- Ensures proper object ownership (production-compliant testing)
-- See test-create-database script for implementation
-
 **Rationale**:
 - Prevents accidental database file creation by any script
 - User has explicit control over production database file creation
 - Clear separation: external tool creates file, bootstrap creates schema
-- Test utility isolated to dev mode only
 
 **Zero exceptions** - NO script creates db.mdb files.
 
-### Test Script Creation (ABSOLUTE RULE)
+### Testing Policy (ABSOLUTE RULE)
 
-**DO NOT create test scripts unless explicitly requested by the user.** Tests are created only on user demand.
+**Manual testing by developer only. DO NOT create test scripts proactively.** Tests are performed manually using production db.mdb.
 
-**Details**: See docs/testing.md for test policies, dev mode requirements, and test design patterns.
+**Testing Approach**:
+- Developer tests manually with their own copy of production db.mdb
+- No formal test scripts or test infrastructure needed
+- If special test file needed, developer will request it explicitly
+- Save time and tokens by avoiding tests altogether in plans and updates
+
+**Zero exceptions** - Do not create test scripts unless user explicitly requests them.
 
 ### Path Handling (ABSOLUTE RULE)
 
@@ -246,7 +241,6 @@ docs/ (dm.md, boot.md, sec.md)
 *.ps1 (all scripts in root, NEVER subfolders)
 *.bat (batch launchers)
 *.vbs (VBScript launchers - production use, no console flash)
-test.mdb (test database, in project root - dev mode only)
 dev_mode.yaml (optional - dev mode configuration, in parent directory)
 ```
 
@@ -313,10 +307,6 @@ dev_mode.yaml (optional - dev mode configuration, in parent directory)
 - admin role → Admin panel (user management CRUD)
 - md role → Clinical interface (patient and records management)
 
-**Test Infrastructure** (test-* naming, dev mode only):
-- Database creation utilities, phase-based test suites, credential bootstrapping
-- See docs/testing.md for test design and patterns
-
 **Logging**: Log file in project root (INFO, SUCCESS, WARNING, ERROR levels). DO NOT log passwords, keys, or sensitive data.
 
 **Error Handling**: try/catch/finally blocks, close connections in finally, clear session KEK in finally blocks
@@ -330,8 +320,6 @@ dev_mode.yaml (optional - dev mode configuration, in parent directory)
 2. Add error handling, logging, state validation (if database interaction)
 3. Create launcher (.vbs for production, .bat for debugging)
 4. Test with 32-bit PowerShell
-
-**Test Scripts**: See docs/testing.md for test creation workflow and standards
 
 **Dev Mode Features** (dev_mode.yaml in parent directory):
 - Workgroup security: Custom .mdw for production-compliant testing (requires valid .mdw file)
@@ -354,12 +342,10 @@ dev_mode.yaml (optional - dev mode configuration, in parent directory)
   - Subsequent launches: Shows Windows Forms login UI
   - State detection: VirginDatabase | KekNoAdmin | ProductionReady (see rboot)
 
-**Testing**: Create test.mdb (dev mode only), run test utilities (see rtest)
-
 **Troubleshooting**: Check log.txt for error details. See docs/powershell.md for common issues.
 
 ---
 
 **Commands**: resume | rl | ud
 
-**Docs**: rsec | rboot | rtest | rps | rui | rdm
+**Docs**: rsec | rboot | rps | rui | rdm

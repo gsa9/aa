@@ -170,10 +170,9 @@ When creating a database file (.mdb) through a workgroup connection:
 4. Database is "bound" to that workgroup for security
 
 **Why This Matters**:
-- test.mdb MUST be created with workgroup connection in dev mode
-- Ensures proper object ownership (tables, queries, etc.)
-- Tests emulate production security model with isolated workgroup
-- Without workgroup, tests are not production-compliant
+- Database creation with workgroup connection ensures proper object ownership
+- Production database should be created with custom admin user in workgroup
+- Workgroup security provides access control at database engine level
 
 **Example** (ADOX with workgroup):
 ```powershell
@@ -223,45 +222,6 @@ workgroup:
 - Validates .mdw file exists (fails early if misconfigured)
 - Requires workgroup section with mdw_path, user_id, and password
 
-### Test Scripts & Dev Mode
-
-**Test scripts MUST run in dev mode:**
-
-1. **Pre-flight check**:
-   ```powershell
-   if (-not (Test-DevMode)) {
-       Write-Host "[ERROR] Tests require dev mode (dev_mode.yaml with workgroup configuration)" -ForegroundColor Red
-       exit 1
-   }
-   ```
-
-2. **Workgroup connection for test.mdb**:
-   ```powershell
-   $connection = New-DatabaseConnection -DatabasePath $testDbPath
-   # Uses Get-WorkgroupConnectionString internally (dev mode)
-   ```
-
-3. **test.mdb deletion/creation**:
-   - ONLY allowed in dev mode
-   - Test utilities check dev mode at startup
-   - Tests fail if not in dev mode (not production-compliant)
-   - test-create-database.ps1 is dedicated TEST UTILITY
-
-**Test Database Creation** (test-create-database.ps1):
-   - TEST UTILITY: Only creates test.mdb (project root)
-   - Requires dev mode at startup (fails immediately if not in dev mode)
-   - Automatically deletes existing test.mdb to recycle bin
-   - Uses workgroup connection for proper object ownership
-   - Never touches production db.mdb (not its concern)
-   - Follows test-* naming convention (clearly identifiable as test utility)
-
-**Rationale**:
-- Tests emulate production security with isolated workgroup
-- Workgroup connection ensures proper object ownership
-- Dev mode prevents accidental production database operations
-- Tests verify workgroup security layer works correctly
-- Test utilities isolated by dev mode requirement and test-* naming
-
 ### Security Implications
 
 **Workgroup Security is Layer 2** (see Defense-in-Depth above):
@@ -299,14 +259,12 @@ workgroup:
 **Development Environment**:
 - Create custom System.mdw with custom admin user
 - Create dev_mode.yaml in parent directory with workgroup configuration
-- Test scripts verify dev mode before running
-- test.mdb created/deleted as needed (dev mode only)
+- Dev mode enables workgroup connection string usage
 
-**Testing Production Mode**:
+**Simulating Production Mode**:
 - Set dev_mode.enabled to false in dev_mode.yaml
 - Test-DevMode returns `$false` (production mode)
-- Scripts use basic connection string
-- Tests will fail (as designed - dev mode required)
+- Scripts use basic connection string without workgroup parameters
 
 ### Best Practices
 
@@ -314,16 +272,7 @@ workgroup:
 2. **Keep custom .mdw secure** - Contains dev environment security
 3. **Document .mdw setup** - Assume .mdw exists, configure path in dev_mode.yaml
 4. **Test both modes** - Production (no workgroup) and dev (with workgroup)
-5. **Fail early** - Tests should check dev mode immediately
-6. **Use workgroup for test.mdb creation** - Ensures proper ownership
-7. **Isolate environments** - Separate .mdw files for dev/test/production
-
-### Cross-References
-
-- **dev-mode-helpers.ps1** - Test-DevMode, Get-WorkgroupConnectionString functions
-- **database-helpers.ps1** - New-DatabaseConnection uses workgroup connection string
-- **CLAUDE.md** - Test Database Policy (Dev Mode Only) section
-- **docs/boot.md** - Database File Policies section
+5. **Isolate environments** - Separate .mdw files for dev/production
 
 ---
 
@@ -588,21 +537,3 @@ CREATE TABLE Patients (
 9. [OK] Are IVs unique per encrypted record? → **YES** (AES random IV generation)
 10. [OK] Is error handling secure? → **YES** (KEK cleared in finally blocks)
 
----
-
-## Cross-References
-
-**Related Documentation:**
-- Main project documentation: CLAUDE.md
-- Bootstrap workflow and state machine: docs/boot.md
-- Test design and dev mode: docs/testing.md
-- Documentation maintenance: docs/dm.md
-
-**Source Modules:**
-- Crypto helpers: All cryptography functions (PBKDF2, double PBKDF2, AES-256)
-- Bootstrap UI: Windows Forms first-run setup workflow
-- Login UI: Windows Forms authentication workflow
-- Database helpers: Connection management, CRUD operations
-- User management: User creation, authentication, authorization
-
-**Implementation**: See project root for current module organization

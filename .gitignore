@@ -3,8 +3,6 @@ log.txt
 
 # Database files
 *.mdb
-db.mdb
-test.mdb
 
 # Dev mode configuration
 dev_mode.yaml
